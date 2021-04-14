@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "874700694376",
+    "project_id": "firestoreexample-a50ae",
+    "storage_bucket": "firestoreexample-a50ae.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:874700694376:android:7c625bebf00f219ee9acdd",
+        "android_client_info": {
+          "package_name": "com.ossovita.firestoreexample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "874700694376-2mrcsrer7f04vjm01me2qvnfalqoodf7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdAEk2XiyOSUzp9ohIjV9O0QQ28DwnChQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "874700694376-2mrcsrer7f04vjm01me2qvnfalqoodf7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
