@@ -17,15 +17,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.SetOptions;
-
-import java.security.Key;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -36,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView textViewData;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CollectionReference notebookRef = db.collection("Notebook");
     private DocumentReference noteRef = db.document("Notebook/My First Note");//db.collection("Notebook").document("My First Note"); bu şekilde de referans verebiliriz
 
     @Override
@@ -51,86 +47,63 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {//listenerı başlat(dinlemeye başla)
         super.onStart();
-        noteRef.addSnapshotListener(this,new EventListener<DocumentSnapshot>() {
+        notebookRef.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error == null) {//hata yoksa
-                    if (value.exists()) {//gelen veri varsa
-                        Note note = value.toObject(Note.class);
-                        String title = note.getTitle();
-                        String description = note.getDescription();
-                        textViewData.setText("Title: " + title + "\nDescription: " + description);
-                    }else{//gelen veri yoksa
-                        textViewData.setText("");
-                    }
-                } else {//hata varsa
-                    Toast.makeText(MainActivity.this, "Error: " + error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "onEvent: Error: " + error.toString());
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if(error!=null){//hata varsa çık
+                    return;
                 }
+                String data = "";
+                for (QueryDocumentSnapshot documentSnapshot : value) {//her bir querydocumentsnapshot objesi için
+                    Note note = documentSnapshot.toObject(Note.class);
+                    note.setDocumentId(documentSnapshot.getId());
 
+                    String documentId = note.getDocumentId();
+                    String title = note.getTitle();
+                    String description = note.getDescription();
+                    data += "ID:"+documentId+
+                            "\nTitle: " + title +
+                            "\nDescription: " + description + "\n\n";
+
+                }
+                textViewData.setText(data);
             }
         });
+
     }
 
 
-    public void saveNote(View v) {
+    public void addNote(View v) {
         String title = editTextTitle.getText().toString();
         String description = editTextDescription.getText().toString();
 
-        Note note = new Note(title,description);
+        Note note = new Note(title, description);
 
         //db.document("Notebook/MyFirstNote"); bu şekilde de yazılabilir.
-        noteRef.set(note)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+        notebookRef.add(note);
+    }
+
+
+    public void loadNotes(View v) {
+        notebookRef.get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(MainActivity.this, "Note saved successfully", Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MainActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "onFailure: " + e.getLocalizedMessage());
-            }
-        });
-    }
-
-    public void updateDescription(View v){
-        String description = editTextDescription.getText().toString();
-        noteRef.update(KEY_DESCRIPTION,description);
-
-    }
-
-    public void deleteDescription(View v){
-        noteRef.update(KEY_DESCRIPTION,FieldValue.delete());//bu key'e sahip veriyi sil
-    }
-
-    public void deleteNote(View v){
-        noteRef.delete();//işaret edilen path'deki notu sil
-    }
-
-    public void loadNote(View v) {
-        noteRef.get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {//eğer döküman varsa
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        String data = "";
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {//her bir querydocumentsnapshot objesi için
                             Note note = documentSnapshot.toObject(Note.class);
+                            note.setDocumentId(documentSnapshot.getId());
+
+                            String documentId = note.getDocumentId();
                             String title = note.getTitle();
                             String description = note.getDescription();
-                            textViewData.setText("Title: " + title + "\nDescription: " + description);
-                        } else { //döküman yoksa
-                            Toast.makeText(MainActivity.this, "Document does not exists", Toast.LENGTH_SHORT).show();
+                            data += "ID:"+documentId+
+                                    "\nTitle: " + title +
+                                    "\nDescription: " + description + "\n\n";
                         }
+                        textViewData.setText(data);
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MainActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                Log.d(TAG, e.toString());
-            }
-        });
-
+                });
 
     }
 }

@@ -1,13 +1,25 @@
 package com.ossovita.firestoreexample;
 
-public class Note {
-    private String title,description;
+import com.google.firebase.firestore.Exclude;
+import com.google.gson.annotations.Expose;
 
-    public Note(){
+public class Note {
+    private String title, description, documentId;
+
+    public Note() {
         //public no-arg constructor needed
     }
 
-    public Note (String title,String description){
+    @Exclude
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
+    }
+
+    public Note(String title, String description) {
         this.title = title;
         this.description = description;
     }
