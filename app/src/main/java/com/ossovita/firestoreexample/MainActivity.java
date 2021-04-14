@@ -20,6 +20,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     public void saveNote(View v) {
         String title = editTextTitle.getText().toString();
         String description = editTextDescription.getText().toString();
@@ -90,6 +90,13 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onFailure: " + e.getLocalizedMessage());
             }
         });
+    }
+
+    public void updateDescription(View v){
+        String description = editTextDescription.getText().toString();
+
+        noteRef.update(KEY_DESCRIPTION,description);
+
     }
 
     public void loadNote(View v) {
