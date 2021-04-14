@@ -56,10 +56,9 @@ public class MainActivity extends AppCompatActivity {
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error == null) {//hata yoksa
                     if (value.exists()) {//gelen veri varsa
-                        String title = value.getString(KEY_TITLE);
-                        String description = value.getString(KEY_DESCRIPTION);
-
-                        Map<String, Object> note = value.getData();
+                        Note note = value.toObject(Note.class);
+                        String title = note.getTitle();
+                        String description = note.getDescription();
                         textViewData.setText("Title: " + title + "\nDescription: " + description);
                     }else{//gelen veri yoksa
                         textViewData.setText("");
@@ -77,9 +76,9 @@ public class MainActivity extends AppCompatActivity {
     public void saveNote(View v) {
         String title = editTextTitle.getText().toString();
         String description = editTextDescription.getText().toString();
-        Map<String, Object> note = new HashMap<>();
-        note.put(KEY_TITLE, title);
-        note.put(KEY_DESCRIPTION, description);
+
+        Note note = new Note(title,description);
+
         //db.document("Notebook/MyFirstNote"); bu şekilde de yazılabilir.
         noteRef.set(note)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -116,10 +115,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {//eğer döküman varsa
-                            String title = documentSnapshot.getString(KEY_TITLE);
-                            String description = documentSnapshot.getString(KEY_DESCRIPTION);
-
-                            Map<String, Object> note = documentSnapshot.getData();
+                            Note note = documentSnapshot.toObject(Note.class);
+                            String title = note.getTitle();
+                            String description = note.getDescription();
                             textViewData.setText("Title: " + title + "\nDescription: " + description);
                         } else { //döküman yoksa
                             Toast.makeText(MainActivity.this, "Document does not exists", Toast.LENGTH_SHORT).show();
