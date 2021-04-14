@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -15,7 +16,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private DocumentReference noteRef = db.document("Notebook/My First Note");//db.collection("Notebook").document("My First Note"); bu şekilde de referans verebiliriz
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +44,30 @@ public class MainActivity extends AppCompatActivity {
         textViewData = findViewById(R.id.text_view_data);
 
     }
+
+    @Override
+    protected void onStart() {//listenerı başlat(dinlemeye başla)
+        super.onStart();
+        noteRef.addSnapshotListener(this,new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error == null) {//hata yoksa
+                    if (value.exists()) {//gelen veri varsa
+                        String title = value.getString(KEY_TITLE);
+                        String description = value.getString(KEY_DESCRIPTION);
+
+                        Map<String, Object> note = value.getData();
+                        textViewData.setText("Title: " + title + "\nDescription: " + description);
+                    }
+                } else {//hata varsa
+                    Toast.makeText(MainActivity.this, "Error: " + error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onEvent: Error: " + error.toString());
+                }
+
+            }
+        });
+    }
+
 
 
     public void saveNote(View v) {
@@ -70,13 +97,13 @@ public class MainActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if(documentSnapshot.exists()){//eğer döküman varsa
+                        if (documentSnapshot.exists()) {//eğer döküman varsa
                             String title = documentSnapshot.getString(KEY_TITLE);
                             String description = documentSnapshot.getString(KEY_DESCRIPTION);
 
-                            Map<String,Object> note = documentSnapshot.getData();
-                            textViewData.setText("Title: "+title + "\nDescription: "+ description);
-                        }else{ //döküman yoksa
+                            Map<String, Object> note = documentSnapshot.getData();
+                            textViewData.setText("Title: " + title + "\nDescription: " + description);
+                        } else { //döküman yoksa
                             Toast.makeText(MainActivity.this, "Document does not exists", Toast.LENGTH_SHORT).show();
                         }
                     }
