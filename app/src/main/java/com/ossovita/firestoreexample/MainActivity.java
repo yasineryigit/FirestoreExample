@@ -17,11 +17,13 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.SetOptions;
 
+import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
 
                         Map<String, Object> note = value.getData();
                         textViewData.setText("Title: " + title + "\nDescription: " + description);
+                    }else{//gelen veri yoksa
+                        textViewData.setText("");
                     }
                 } else {//hata varsa
                     Toast.makeText(MainActivity.this, "Error: " + error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
@@ -94,9 +98,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateDescription(View v){
         String description = editTextDescription.getText().toString();
-
         noteRef.update(KEY_DESCRIPTION,description);
 
+    }
+
+    public void deleteDescription(View v){
+        noteRef.update(KEY_DESCRIPTION,FieldValue.delete());//bu key'e sahip veriyi sil
+    }
+
+    public void deleteNote(View v){
+        noteRef.delete();//işaret edilen path'deki notu sil
     }
 
     public void loadNote(View v) {
