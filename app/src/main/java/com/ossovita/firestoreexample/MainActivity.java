@@ -19,6 +19,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_DESCRIPTION = "description";
     private EditText editTextTitle;
     private EditText editTextDescription;
+    private EditText editTextPriority;
     private TextView textViewData;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         editTextTitle = findViewById(R.id.edit_text_title);
         editTextDescription = findViewById(R.id.edit_text_description);
+        editTextPriority = findViewById(R.id.edit_text_priority);
         textViewData = findViewById(R.id.text_view_data);
 
     }
@@ -61,9 +64,13 @@ public class MainActivity extends AppCompatActivity {
                     String documentId = note.getDocumentId();
                     String title = note.getTitle();
                     String description = note.getDescription();
+                    int priority = note.getPriority();
+
                     data += "ID:"+documentId+
                             "\nTitle: " + title +
-                            "\nDescription: " + description + "\n\n";
+                            "\nDescription: " + description +
+                            "\nPriority: "+priority+
+                            "\n\n";
 
                 }
                 textViewData.setText(data);
@@ -77,7 +84,13 @@ public class MainActivity extends AppCompatActivity {
         String title = editTextTitle.getText().toString();
         String description = editTextDescription.getText().toString();
 
-        Note note = new Note(title, description);
+        if(editTextPriority.length()==0){
+            editTextPriority.setText("0");
+        }
+
+        int priority = Integer.parseInt(editTextPriority.getText().toString());
+
+        Note note = new Note(title, description,priority);
 
         //db.document("Notebook/MyFirstNote"); bu şekilde de yazılabilir.
         notebookRef.add(note);
@@ -85,7 +98,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void loadNotes(View v) {
-        notebookRef.get()
+        notebookRef.whereGreaterThanOrEqualTo("priority",0)
+                .orderBy("priority", Query.Direction.DESCENDING)
+                .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -97,9 +112,13 @@ public class MainActivity extends AppCompatActivity {
                             String documentId = note.getDocumentId();
                             String title = note.getTitle();
                             String description = note.getDescription();
+                            int priority = note.getPriority();
+
                             data += "ID:"+documentId+
                                     "\nTitle: " + title +
-                                    "\nDescription: " + description + "\n\n";
+                                    "\nDescription: " + description +
+                                    "\nPriority: "+priority+
+                                    "\n\n";
                         }
                         textViewData.setText(data);
                     }
