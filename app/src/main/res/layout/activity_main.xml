@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context="com.ossovita.firestoreexampleproject.MainActivity">
+    tools:context="com.ossovita.firestoreexample.MainActivity">
 
     <EditText
         android:id="@+id/edit_text_title"
@@ -25,7 +25,18 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="save_note"
+        android:onClick="saveNote"
         android:text="Save" />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="loadNote"
+        android:text="Load" />
+    <TextView
+        android:id="@+id/text_view_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"/>
+
 
 </LinearLayout>
